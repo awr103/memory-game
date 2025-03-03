@@ -64,12 +64,14 @@ interface ImageReviewProps {
   pairs: WordImagePair[];
   onConfirm: () => void;
   onRegenerateImage: (pairId: number, newImageUrl: string, newCredit: { user: string; pageUrl: string }) => void;
+  onBack: () => void;
 }
 
 const ImageReview: React.FC<ImageReviewProps> = ({ 
   pairs, 
   onConfirm,
-  onRegenerateImage 
+  onRegenerateImage,
+  onBack
 }) => {
   const [loadingStates, setLoadingStates] = useState<{ [key: number]: boolean }>({});
 
@@ -130,7 +132,15 @@ const ImageReview: React.FC<ImageReviewProps> = ({
           </Grid>
         ))}
       </Grid>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2 }}>
+        <Button 
+          variant="outlined" 
+          color="primary" 
+          size="large" 
+          onClick={onBack}
+        >
+          Back
+        </Button>
         <Button 
           variant="contained" 
           color="primary" 

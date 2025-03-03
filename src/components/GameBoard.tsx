@@ -13,6 +13,7 @@ interface GameBoardProps {
   onCardClick: (cardId: number) => void;
   onRestart: () => void;
   onRegenerateImage?: (cardId: number) => void;
+  onBack: () => void;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -25,6 +26,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   onCardClick,
   onRestart,
   onRegenerateImage,
+  onBack,
 }) => {
   return (
     <Box
@@ -37,7 +39,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
         position: 'relative',
       }}
     >
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={onBack}
+          size="small"
+        >
+          Back
+        </Button>
         <Typography variant="h6" component="div">
           Moves: {moves} | Matched Pairs: {matchedPairs}
         </Typography>
@@ -86,14 +96,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
           <Typography variant="h4" sx={{ mb: 2 }}>
             Congratulations! You won in {moves} moves!
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={onRestart}
-            size="large"
-          >
-            Play Again
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={onBack}
+              size="large"
+            >
+              Back
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={onRestart}
+              size="large"
+            >
+              Play Again
+            </Button>
+          </Box>
         </Box>
       )}
     </Box>

@@ -112,6 +112,14 @@ const App: React.FC = () => {
     setGameStage("play");
   };
 
+  const handleBack = () => {
+    if (gameStage === "review") {
+      setGameStage("input");
+    } else if (gameStage === "play") {
+      setGameStage("review");
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -125,6 +133,7 @@ const App: React.FC = () => {
             pairs={pairs} 
             onConfirm={handleStartGame}
             onRegenerateImage={handleRegenerateImage}
+            onBack={handleBack}
           />
         )}
         {gameStage === "play" && (
@@ -136,6 +145,7 @@ const App: React.FC = () => {
             gameCompleted={gameCompleted}
             onCardClick={handleCardClick}
             onRestart={handleGameRestart}
+            onBack={handleBack}
           />
         )}
       </Container>
