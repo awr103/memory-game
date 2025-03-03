@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ThemeProvider, createTheme, CssBaseline, Container } from "@mui/material";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Home from "./components/Home";
 import WordInput from "./components/WordInput";
 import ImageReview from "./components/ImageReview";
@@ -28,10 +29,11 @@ const theme = createTheme({
   },
 });
 
-const App: React.FC = () => {
+const GameContent: React.FC = () => {
   const [gameSize, setGameSize] = useState<GameSize | null>(null);
   const [pairs, setPairs] = useState<WordImagePair[]>([]);
-  const [gameStage, setGameStage] = useState<"home" | "input" | "review" | "play">("home");
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     cards,
     flippedCards,
@@ -42,9 +44,29 @@ const App: React.FC = () => {
     resetGame,
   } = useGameLogic(pairs);
 
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = location.pathname;
+      if (path === '/') {
+        setGameSize(null);
+        setPairs([]);
+      } else if (path === '/input') {
+        // Keep gameSize
+      } else if (path === '/review') {
+        // Keep pairs
+      } else if (path === '/play') {
+        // Keep game state
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [location]);
+
   const handleGameSizeSelect = (size: GameSize) => {
     setGameSize(size);
-    setGameStage("input");
+    navigate('/input');
   };
 
   const handleWordsSubmit = async (words: string[]) => {
@@ -64,7 +86,7 @@ const App: React.FC = () => {
       }
     }
     setPairs(newPairs);
-    setGameStage("review");
+    navigate('/review');
   };
 
   const handleRegenerateImage = (pairId: number, newImageUrl: string, newCredit: { user: string; pageUrl: string }) => {
@@ -105,50 +127,69 @@ const App: React.FC = () => {
     resetGame();
     setPairs([]);
     setGameSize(null);
-    setGameStage("home");
+    navigate('/');
   };
 
   const handleStartGame = () => {
-    setGameStage("play");
+    navigate('/play');
   };
 
   const handleBack = () => {
-    if (gameStage === "review") {
-      setGameStage("input");
-    } else if (gameStage === "play") {
-      setGameStage("review");
-    }
+    navigate(-1);
   };
 
   return (
+    <Container maxWidth="lg">
+      <Routes>
+        <Route path="/" element={<Home onGameSizeSelect={handleGameSizeSelect} />} />
+        <Route 
+          path="/input" 
+          element={
+            gameSize ? (
+              <WordInput gameSize={gameSize} onWordsSubmit={handleWordsSubmit} />
+            ) : (
+              <Home onGameSizeSelect={handleGameSizeSelect} />
+            )
+          } 
+        />
+        <Route 
+          path="/review" 
+          element={
+            <ImageReview 
+              pairs={pairs} 
+              onConfirm={handleStartGame}
+              onRegenerateImage={handleRegenerateImage}
+              onBack={handleBack}
+            />
+          } 
+        />
+        <Route 
+          path="/play" 
+          element={
+            <GameBoard
+              cards={cards}
+              flippedCards={flippedCards}
+              matchedPairs={matchedPairs}
+              moves={moves}
+              gameCompleted={gameCompleted}
+              onCardClick={handleCardClick}
+              onRestart={handleGameRestart}
+              onBack={handleBack}
+            />
+          } 
+        />
+      </Routes>
+    </Container>
+  );
+};
+
+const App: React.FC = () => {
+  return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="lg">
-        {gameStage === "home" && <Home onGameSizeSelect={handleGameSizeSelect} />}
-        {gameStage === "input" && gameSize && (
-          <WordInput gameSize={gameSize} onWordsSubmit={handleWordsSubmit} />
-        )}
-        {gameStage === "review" && (
-          <ImageReview 
-            pairs={pairs} 
-            onConfirm={handleStartGame}
-            onRegenerateImage={handleRegenerateImage}
-            onBack={handleBack}
-          />
-        )}
-        {gameStage === "play" && (
-          <GameBoard
-            cards={cards}
-            flippedCards={flippedCards}
-            matchedPairs={matchedPairs}
-            moves={moves}
-            gameCompleted={gameCompleted}
-            onCardClick={handleCardClick}
-            onRestart={handleGameRestart}
-            onBack={handleBack}
-          />
-        )}
-      </Container>
+      <Router>
+        <GameContent />
+      </Router>
     </ThemeProvider>
   );
 };
