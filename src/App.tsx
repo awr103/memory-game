@@ -40,7 +40,6 @@ const App: React.FC = () => {
     gameCompleted,
     handleCardClick,
     resetGame,
-    setCards,
   } = useGameLogic(pairs);
 
   const handleGameSizeSelect = (size: GameSize) => {
